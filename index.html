@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>빅데이터 분석기사 기출문제</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <button id="settings-btn">⚙️</button>
+
+        <!-- 홈 화면 (회차 목록) -->
+        <div id="home-section">
+            <h1>빅데이터 분석기사 기출문제</h1>
+            <div id="exam-list" class="exam-list">
+                <!-- 자바스크립트로 회차 목록이 여기에 추가됨 -->
+            </div>
+        </div>
+
+        <!-- 퀴즈 화면 (초기에는 숨김) -->
+        <div id="quiz-section" class="hidden">
+            <button id="back-to-home-btn">← 목록으로</button>
+            <h2 id="exam-title"></h2> <!-- 회차 제목 표시 -->
+
+            <!-- 과목 선택 드롭다운 -->
+            <div id="filter-container">
+                <label for="subject-filter">과목 선택:</label>
+                <select id="subject-filter">
+                    <option value="all">전체 보기</option>
+                    <option value="favorites">⭐ 오답 노트 (즐겨찾기)</option>
+                    <option value="mock-exam">🎲 랜덤 모의고사 (20문제)</option>
+                    <!-- 자바스크립트로 옵션 추가됨 -->
+                </select>
+            </div>
+
+            <!-- 모의고사 타이머 (평소엔 숨김) -->
+            <div id="timer-container" class="hidden">
+                남은 시간: <span id="timer">30:00</span>
+            </div>
+
+            <div id="quiz-container">
+                <div id="progress-container">
+                    <div id="progress-bar"></div>
+                </div>
+                <div id="question-header">
+                    <span id="question-number"></span>
+                    <span id="question-subject"></span>
+                    <span id="question-keyword"></span>
+                    <button id="favorite-btn" class="favorite-btn">☆</button>
+                </div>
+                <p id="question"></p>
+                <div id="options-container"></div>
+                <div id="navigation-container">
+                    <button id="prev-btn">이전</button>
+                    <button id="submit-btn" class="hidden">제출하기</button>
+                    <button id="next-btn">다음</button>
+                </div>
+                <div id="explanation-container" class="hidden">
+                    <h3>해설</h3>
+                    <p id="explanation"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 설정 모달 -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>설정</h2>
+
+            <div class="setting-section">
+                <h3>학습 통계</h3>
+                <div id="stats-container">
+                    <p>전체 진행률: <span id="total-progress">0%</span></p>
+                    <p>정답률: <span id="correct-rate">0%</span></p>
+                    <div id="subject-stats">
+                        <!-- 과목별 통계가 여기에 추가됨 -->
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+
+            <div class="setting-item">
+                <label for="dark-mode-toggle">다크 모드</label>
+                <label class="switch">
+                    <input type="checkbox" id="dark-mode-toggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-item">
+                <label for="font-size-slider">글자 크기</label>
+                <input type="range" id="font-size-slider" min="14" max="24" value="16">
+            </div>
+            <div class="setting-item">
+                <button id="reset-confirm-btn">모든 진행 상황 초기화</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 결과 모달 -->
+    <div id="result-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="result-close-btn">&times;</span>
+            <h2>모의고사 결과</h2>
+            <p id="result-score"></p>
+            <p id="result-message"></p>
+            <button id="review-btn">오답 확인하기</button>
+            <button id="retry-btn">다시 풀기</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

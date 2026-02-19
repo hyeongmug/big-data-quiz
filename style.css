@@ -1,0 +1,525 @@
+:root {
+    --bg-color: #f4f4f9;
+    --container-bg: #fff;
+    --text-color: #333;
+    --header-color: #4a4a4a;
+    --border-color: #eaeaea;
+    --progress-bg: #e0e0e0;
+    --progress-fill: #76c7c0;
+    --tag-bg: #efefef;
+    --tag-text: #666;
+    --option-bg: #f9f9f9;
+    --option-border: #ddd;
+    --option-hover: #e9e9e9;
+    --correct-bg: #d4edda;
+    --correct-border: #c3e6cb;
+    --correct-text: #155724;
+    --incorrect-bg: #f8d7da;
+    --incorrect-border: #f5c6cb;
+    --incorrect-text: #721c24;
+    --btn-bg: #007bff;
+    --btn-hover: #0056b3;
+    --btn-disabled: #ccc;
+    --explanation-bg: #f1f1f1;
+    --explanation-border: #e0e0e0;
+    --modal-bg: rgba(0, 0, 0, 0.5);
+    --modal-content-bg: #fff;
+    --favorite-color: #ffd700;
+}
+
+[data-theme="dark"] {
+    --bg-color: #121212;
+    --container-bg: #1e1e1e;
+    --text-color: #e0e0e0;
+    --header-color: #ffffff;
+    --border-color: #333;
+    --progress-bg: #333;
+    --progress-fill: #bb86fc;
+    --tag-bg: #333;
+    --tag-text: #aaa;
+    --option-bg: #2c2c2c;
+    --option-border: #444;
+    --option-hover: #3a3a3a;
+    --correct-bg: #1b4d3e;
+    --correct-border: #2e7d32;
+    --correct-text: #a5d6a7;
+    --incorrect-bg: #4a1b1b;
+    --incorrect-border: #c62828;
+    --incorrect-text: #ef9a9a;
+    --btn-bg: #bb86fc;
+    --btn-hover: #9965f4;
+    --btn-disabled: #555;
+    --explanation-bg: #2c2c2c;
+    --explanation-border: #444;
+    --modal-bg: rgba(255, 255, 255, 0.1);
+    --modal-content-bg: #1e1e1e;
+    --favorite-color: #ffd700;
+}
+
+body {
+    font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.container {
+    background-color: var(--container-bg);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 800px;
+    position: relative;
+    transition: background-color 0.3s;
+}
+
+h1 {
+    text-align: center;
+    color: var(--header-color);
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 15px;
+    margin-bottom: 30px;
+}
+
+#quiz-container {
+    padding: 20px;
+}
+
+#progress-container {
+    width: 100%;
+    background-color: var(--progress-bg);
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+#progress-bar {
+    height: 10px;
+    width: 0%;
+    background-color: var(--progress-fill);
+    border-radius: 5px;
+    transition: width 0.3s ease;
+}
+
+#question-header {
+    margin-bottom: 20px;
+    font-size: 0.9em;
+    color: var(--tag-text);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+#question-header span {
+    display: inline-block;
+    background-color: var(--tag-bg);
+    padding: 5px 10px;
+    border-radius: 15px;
+    margin-right: 10px;
+    margin-bottom: 5px;
+}
+
+#question {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 25px;
+    line-height: 1.6;
+}
+
+#options-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.option {
+    background-color: var(--option-bg);
+    border: 1px solid var(--option-border);
+    padding: 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.option:hover {
+    background-color: var(--option-hover);
+    border-color: #ccc;
+}
+
+.option.correct {
+    background-color: var(--correct-bg);
+    border-color: var(--correct-border);
+    color: var(--correct-text);
+    font-weight: bold;
+}
+
+.option.incorrect {
+    background-color: var(--incorrect-bg);
+    border-color: var(--incorrect-border);
+    color: var(--incorrect-text);
+    font-weight: bold;
+}
+
+.option.selected {
+    background-color: #cce5ff;
+    border-color: #b8daff;
+    color: #004085;
+    font-weight: bold;
+}
+
+#navigation-container {
+    text-align: center;
+    margin-top: 30px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 20px;
+}
+
+#navigation-container button {
+    background-color: var(--btn-bg);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    margin: 0 10px;
+    transition: background-color 0.3s;
+}
+
+#navigation-container button:hover {
+    background-color: var(--btn-hover);
+}
+
+#navigation-container button:disabled {
+    background-color: var(--btn-disabled);
+    cursor: not-allowed;
+}
+
+#explanation-container {
+    margin-top: 25px;
+    padding: 20px;
+    background-color: var(--explanation-bg);
+    border: 1px solid var(--explanation-border);
+    border-radius: 5px;
+}
+
+#explanation-container h3 {
+    margin-top: 0;
+    color: var(--text-color);
+}
+
+.hidden {
+    display: none;
+}
+
+.sub-questions {
+    list-style-type: none;
+    padding-left: 10px;
+    margin-top: 15px;
+    font-weight: normal;
+}
+
+.sub-questions li {
+    margin-bottom: 8px;
+}
+
+/* 설정 버튼 스타일 */
+#settings-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: var(--text-color);
+    padding: 5px;
+}
+
+/* 모달 스타일 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--modal-bg);
+}
+
+.modal-content {
+    background-color: var(--modal-content-bg);
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    width: 80%;
+    max-width: 400px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    color: var(--text-color);
+}
+
+.close-btn {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: var(--text-color);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.setting-item {
+    margin: 20px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* 토글 스위치 스타일 */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--progress-fill);
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+#reset-confirm-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+}
+
+#reset-confirm-btn:hover {
+    background-color: #c82333;
+}
+
+/* 필터 컨테이너 스타일 */
+#filter-container {
+    text-align: right;
+    margin-bottom: 20px;
+    padding-right: 20px;
+}
+
+#filter-container label {
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+#subject-filter {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    background-color: var(--container-bg);
+    color: var(--text-color);
+}
+
+/* 즐겨찾기 버튼 스타일 */
+.favorite-btn {
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: #ccc;
+    transition: color 0.3s;
+    margin-left: auto; /* 우측 정렬 */
+}
+
+.favorite-btn.active {
+    color: var(--favorite-color);
+}
+
+/* 글자 크기 슬라이더 스타일 */
+#font-size-slider {
+    width: 150px;
+}
+
+/* 타이머 스타일 */
+#timer-container {
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #d9534f;
+}
+
+/* 결과 모달 버튼 스타일 */
+#result-modal button {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+#review-btn {
+    background-color: #17a2b8;
+    color: white;
+}
+
+#retry-btn {
+    background-color: #6c757d;
+    color: white;
+}
+
+/* 통계 스타일 */
+.setting-section {
+    margin-bottom: 20px;
+}
+
+.setting-section h3 {
+    margin-top: 0;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+#stats-container p {
+    margin: 5px 0;
+    font-weight: bold;
+}
+
+#subject-stats {
+    margin-top: 15px;
+    font-size: 0.9em;
+}
+
+.stat-bar-container {
+    margin-bottom: 8px;
+}
+
+.stat-label {
+    display: block;
+    margin-bottom: 3px;
+}
+
+.stat-bar-bg {
+    background-color: var(--progress-bg);
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.stat-bar-fill {
+    background-color: var(--progress-fill);
+    height: 100%;
+    width: 0%;
+    transition: width 0.5s;
+}
+
+/* 홈 화면 (회차 목록) 스타일 */
+#home-section {
+    text-align: center;
+}
+
+.exam-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.exam-card {
+    background-color: var(--option-bg);
+    border: 1px solid var(--option-border);
+    padding: 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-align: left;
+}
+
+.exam-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    background-color: var(--option-hover);
+}
+
+.exam-card h3 {
+    margin: 0 0 10px 0;
+    color: var(--header-color);
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.exam-card p {
+    margin: 0;
+    color: var(--tag-text);
+    font-size: 0.9em;
+}
+
+#back-to-home-btn {
+    background: none;
+    border: none;
+    color: var(--btn-bg);
+    font-size: 1em;
+    cursor: pointer;
+    margin-bottom: 10px;
+    padding: 5px 0;
+}
+
+#back-to-home-btn:hover {
+    text-decoration: underline;
+}
+
+#exam-title {
+    text-align: center;
+    margin-bottom: 20px;
+    color: var(--header-color);
+}
