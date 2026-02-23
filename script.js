@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const prevBtn = document.getElementById('prev-btn');
     const nextBtn = document.getElementById('next-btn');
     const submitBtn = document.getElementById('submit-btn');
+    const checkAnswerBtn = document.getElementById('check-answer-btn'); // 정답 확인 버튼 추가
     const explanationContainer = document.getElementById('explanation-container');
     const explanationEl = document.getElementById('explanation');
     const progressBar = document.getElementById('progress-bar');
@@ -58,6 +59,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let timerInterval;
     let timeLeft = 1800;
     let isExamSubmitted = false;
+
+    // 일반 모드에서 정답 확인 여부 (문제별)
+    let checkedAnswers = []; 
 
     const THEME_KEY = 'bigDataQuizTheme';
     const FAVORITES_KEY = 'bigDataQuizFavorites'; // 즐겨찾기는 전역으로 관리 (문제 ID가 유니크하다고 가정하거나, 회차_번호 조합 필요)
@@ -131,6 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.removeItem(storageKey);
                 currentQuestionIndex = 0;
                 userAnswers = new Array(allQuestions.length).fill(null);
+                checkedAnswers = new Array(allQuestions.length).fill(false);
                 
                 subjectFilter.value = 'all';
                 endMockExamMode();
@@ -196,6 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // 진행 상황 불러오기
                 if (!loadProgress()) {
                     userAnswers = new Array(allQuestions.length).fill(null);
+                    checkedAnswers = new Array(allQuestions.length).fill(false);
                     currentQuestionIndex = 0;
                 }
                 
@@ -231,7 +237,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const storageKey = `bigDataQuizProgress_${currentExamId}`;
         const progress = {
             index: subjectFilter.value === 'all' ? currentQuestionIndex : -1, 
-            answers: userAnswers
+            answers: userAnswers,
+            checked: checkedAnswers
         };
         localStorage.setItem(storageKey, JSON.stringify(progress));
     }
@@ -247,6 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = JSON.parse(saved);
                 if (data.answers && Array.isArray(data.answers) && data.answers.length === allQuestions.length) {
                     userAnswers = data.answers;
+                    checkedAnswers = data.checked || new Array(allQuestions.length).fill(false);
                     if (typeof data.index === 'number' && data.index !== -1) {
                         currentQuestionIndex = data.index;
                     } else {
@@ -350,6 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isExamSubmitted = false;
         timerContainer.classList.remove('hidden');
         submitBtn.classList.remove('hidden');
+        checkAnswerBtn.classList.add('hidden'); // 모의고사 중에는 정답 확인 버튼 숨김
         
         const shuffled = [...allQuestions].sort(() => 0.5 - Math.random());
         questions = shuffled.slice(0, 20);
@@ -437,6 +446,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // 정답 확인 버튼 이벤트
+    checkAnswerBtn.addEventListener('click', () => {
+        const question = questions[currentQuestionIndex];
+        const globalIndex = allQuestions.indexOf(question);
+        
+        if (userAnswers[globalIndex] === null) {
+            alert('답안을 선택해주세요.');
+            return;
+        }
+
+        checkedAnswers[globalIndex] = true;
+        saveProgress();
+        displayQuestion(currentQuestionIndex);
+    });
+
     // 문제 표시
     function displayQuestion(index) {
         if (questions.length === 0) {
@@ -447,6 +471,7 @@ document.addEventListener('DOMContentLoaded', () => {
             optionsContainer.innerHTML = '';
             explanationContainer.classList.add('hidden');
             favoriteBtn.style.display = 'none';
+            checkAnswerBtn.classList.add('hidden');
             return;
         }
 
@@ -515,13 +540,28 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
         } else {
-            if (userAnswers[globalIndex] !== null) {
+            // 일반 모드
+            const myAnswer = userAnswers[globalIndex];
+            const isChecked = checkedAnswers[globalIndex];
+
+            if (myAnswer !== null) {
+                const selectedOption = optionsContainer.querySelector(`.option[data-index='${myAnswer}']`);
+                if (selectedOption) selectedOption.classList.add('selected');
+            }
+
+            if (isChecked) {
                 showExplanation();
                 highlightPreviousAnswer(globalIndex);
                 const allOptions = optionsContainer.querySelectorAll('.option');
                 allOptions.forEach(opt => opt.style.pointerEvents = 'none');
+                checkAnswerBtn.classList.add('hidden'); // 이미 확인했으면 버튼 숨김
             } else {
                 explanationContainer.classList.add('hidden');
+                if (myAnswer !== null) {
+                    checkAnswerBtn.classList.remove('hidden'); // 답은 선택했지만 확인 안 함
+                } else {
+                    checkAnswerBtn.classList.add('hidden'); // 답 선택 안 함
+                }
             }
         }
     }
@@ -543,8 +583,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (selectedOptionDiv) {
                 if (parseInt(selectedOptionDiv.dataset.index) === correctAnwer) {
                     selectedOptionDiv.classList.add('correct');
+                    selectedOptionDiv.classList.remove('selected');
                 } else {
                     selectedOptionDiv.classList.add('incorrect');
+                    selectedOptionDiv.classList.remove('selected');
                     const correctOptionDiv = optionsContainer.querySelector(`.option[data-index='${correctAnwer}']`);
                     if(correctOptionDiv) correctOptionDiv.classList.add('correct');
                 }
@@ -574,24 +616,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleOptionClick(selectedIndex, selectedDiv, globalIndex) {
-        if (userAnswers[globalIndex] !== null) return;
+        // 이미 정답 확인을 한 경우 수정 불가
+        if (checkedAnswers[globalIndex]) return;
 
+        // 기존 선택 제거
+        const allOptions = optionsContainer.querySelectorAll('.option');
+        allOptions.forEach(opt => opt.classList.remove('selected'));
+
+        // 새로운 선택
+        selectedDiv.classList.add('selected');
         userAnswers[globalIndex] = selectedIndex;
         saveProgress();
-
-        const correctAnswer = questions[currentQuestionIndex].answer;
-        const allOptions = optionsContainer.querySelectorAll('.option');
-        allOptions.forEach(opt => opt.style.pointerEvents = 'none');
-
-        if (selectedIndex === correctAnswer) {
-            selectedDiv.classList.add('correct');
-        } else {
-            selectedDiv.classList.add('incorrect');
-            const correctOptionDiv = optionsContainer.querySelector(`.option[data-index='${correctAnswer}']`);
-            if (correctOptionDiv) correctOptionDiv.classList.add('correct');
-        }
         
-        showExplanation();
+        // 정답 확인 버튼 표시
+        checkAnswerBtn.classList.remove('hidden');
     }
 
     function handleMockExamOptionClick(selectedIndex, selectedDiv) {
@@ -704,6 +742,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (optionDivs[index]) {
                 optionDivs[index].click();
             }
+        } else if (e.key === 'Enter') {
+            // 엔터키로 정답 확인 (일반 모드이고, 정답 확인 버튼이 보일 때)
+            if (!isMockExamMode && !checkAnswerBtn.classList.contains('hidden')) {
+                checkAnswerBtn.click();
+            }
         }
     });
 
@@ -715,8 +758,15 @@ document.addEventListener('DOMContentLoaded', () => {
         let correctCount = 0;
         const subjectData = {};
 
+        // 일반 모드에서는 '정답 확인'을 한 문제만 통계에 반영
+        // 모의고사 모드는 별도 로직이므로 여기서는 일반 모드 데이터(userAnswers)만 사용한다고 가정
+        // 하지만 userAnswers에는 답만 있고 정답 확인 여부는 checkedAnswers에 있음
+        // 기존 로직: userAnswers에 값이 있으면 푼 것으로 간주
+        // 변경 로직: checkedAnswers가 true인 것만 푼 것으로 간주 (또는 답안 선택만 해도 푼 것으로 칠지는 기획에 따라 다름. 여기서는 정답 확인까지 마친 것을 '완료'로 보는 것이 자연스러움)
+
         userAnswers.forEach((answer, index) => {
-            if (answer !== null) {
+            // 정답 확인까지 마친 문제만 통계에 포함
+            if (answer !== null && checkedAnswers[index]) {
                 solvedCount++;
                 const question = allQuestions[index];
                 const isCorrect = answer === question.answer;
