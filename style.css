@@ -97,14 +97,44 @@ h1 {
     border-radius: 5px;
     margin-bottom: 20px;
     cursor: pointer; /* 클릭 가능함을 표시 */
+    position: relative; /* 툴팁 위치 기준 */
+    height: 10px; /* 높이 명시 */
 }
 
 #progress-bar {
-    height: 10px;
+    height: 100%;
     width: 0%;
     background-color: var(--progress-fill);
     border-radius: 5px;
-    transition: width 0.3s ease;
+    transition: width 0.1s ease; /* 드래그 시 부드럽게 */
+}
+
+/* 툴팁 스타일 */
+#progress-tooltip {
+    position: absolute;
+    top: -35px; /* 진행 바 위에 표시 */
+    left: 0;
+    transform: translateX(-50%);
+    background-color: var(--text-color);
+    color: var(--container-bg);
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.8em;
+    white-space: nowrap;
+    pointer-events: none; /* 툴팁이 마우스 이벤트를 가리지 않도록 */
+    opacity: 0.9;
+    z-index: 10;
+}
+
+#progress-tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: var(--text-color) transparent transparent transparent;
 }
 
 #question-header {

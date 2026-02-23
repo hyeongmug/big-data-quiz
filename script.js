@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const explanationEl = document.getElementById('explanation');
     const progressContainer = document.getElementById('progress-container'); // 진행 바 컨테이너
     const progressBar = document.getElementById('progress-bar');
+    const progressTooltip = document.getElementById('progress-tooltip'); // 툴팁 요소
     const quizContainer = document.getElementById('quiz-container');
     const subjectFilter = document.getElementById('subject-filter');
     const favoriteBtn = document.getElementById('favorite-btn');
@@ -63,6 +64,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 일반 모드에서 정답 확인 여부 (문제별)
     let checkedAnswers = []; 
+
+    // 드래그 관련 변수
+    let isDragging = false;
 
     const THEME_KEY = 'bigDataQuizTheme';
     const FAVORITES_KEY = 'bigDataQuizFavorites'; // 즐겨찾기는 전역으로 관리 (문제 ID가 유니크하다고 가정하거나, 회차_번호 조합 필요)
@@ -671,28 +675,85 @@ document.addEventListener('DOMContentLoaded', () => {
         progressBar.style.width = `${progress}%`;
     }
 
-    // 진행 바 클릭 이벤트 추가
-    progressContainer.addEventListener('click', (e) => {
+    // 진행 바 드래그 기능
+    function handleProgressMove(clientX) {
         if (questions.length === 0) return;
 
         const rect = progressContainer.getBoundingClientRect();
-        const clickX = e.clientX - rect.left;
+        let clickX = clientX - rect.left;
         const width = rect.width;
         
-        // 클릭 위치 비율 계산 (0 ~ 1)
+        // 범위 제한
+        if (clickX < 0) clickX = 0;
+        if (clickX > width) clickX = width;
+
         const ratio = clickX / width;
-        
-        // 해당 비율에 맞는 문제 인덱스 계산
-        // 예: 10문제 중 50% 지점 클릭 -> 인덱스 4 또는 5
         let newIndex = Math.floor(ratio * questions.length);
         
-        // 범위 보정
         if (newIndex < 0) newIndex = 0;
         if (newIndex >= questions.length) newIndex = questions.length - 1;
+
+        // 시각적 피드백 (툴팁 및 바 너비)
+        const percent = (newIndex + 1) / questions.length * 100;
+        progressBar.style.width = `${percent}%`;
         
-        currentQuestionIndex = newIndex;
-        if (subjectFilter.value === 'all' && !isMockExamMode) saveProgress();
-        displayQuestion(currentQuestionIndex);
+        progressTooltip.textContent = `문제 ${questions[newIndex].id}`;
+        progressTooltip.style.left = `${clickX}px`;
+        progressTooltip.classList.remove('hidden');
+
+        return newIndex;
+    }
+
+    progressContainer.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        handleProgressMove(e.clientX);
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        e.preventDefault(); // 텍스트 선택 방지
+        handleProgressMove(e.clientX);
+    });
+
+    document.addEventListener('mouseup', (e) => {
+        if (!isDragging) return;
+        
+        const newIndex = handleProgressMove(e.clientX);
+        isDragging = false;
+        progressTooltip.classList.add('hidden');
+        
+        // 실제 이동
+        if (newIndex !== undefined) {
+            currentQuestionIndex = newIndex;
+            if (subjectFilter.value === 'all' && !isMockExamMode) saveProgress();
+            displayQuestion(currentQuestionIndex);
+        }
+    });
+
+    // 터치 이벤트 지원
+    progressContainer.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        handleProgressMove(e.touches[0].clientX);
+    }, { passive: false });
+
+    document.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        // e.preventDefault(); // 스크롤 방지 (필요 시)
+        handleProgressMove(e.touches[0].clientX);
+    }, { passive: false });
+
+    document.addEventListener('touchend', (e) => {
+        if (!isDragging) return;
+        
+        const newIndex = handleProgressMove(e.changedTouches[0].clientX);
+        isDragging = false;
+        progressTooltip.classList.add('hidden');
+        
+        if (newIndex !== undefined) {
+            currentQuestionIndex = newIndex;
+            if (subjectFilter.value === 'all' && !isMockExamMode) saveProgress();
+            displayQuestion(currentQuestionIndex);
+        }
     });
 
     prevBtn.addEventListener('click', () => {
@@ -717,10 +778,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const minSwipeDistance = 50;
 
     quizContainer.addEventListener('touchstart', (e) => {
+        // 진행 바 드래그 중일 때는 스와이프 무시
+        if (e.target.closest('#progress-container')) return;
         touchStartX = e.changedTouches[0].screenX;
     }, { passive: true });
 
     quizContainer.addEventListener('touchend', (e) => {
+        if (e.target.closest('#progress-container')) return;
         touchEndX = e.changedTouches[0].screenX;
         handleSwipe();
     }, { passive: true });
