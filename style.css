@@ -96,6 +96,7 @@ h1 {
     background-color: var(--progress-bg);
     border-radius: 5px;
     margin-bottom: 20px;
+    cursor: pointer; /* 클릭 가능함을 표시 */
 }
 
 #progress-bar {

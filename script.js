@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const checkAnswerBtn = document.getElementById('check-answer-btn'); // 정답 확인 버튼 추가
     const explanationContainer = document.getElementById('explanation-container');
     const explanationEl = document.getElementById('explanation');
+    const progressContainer = document.getElementById('progress-container'); // 진행 바 컨테이너
     const progressBar = document.getElementById('progress-bar');
     const quizContainer = document.getElementById('quiz-container');
     const subjectFilter = document.getElementById('subject-filter');
@@ -669,6 +670,30 @@ document.addEventListener('DOMContentLoaded', () => {
         const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
         progressBar.style.width = `${progress}%`;
     }
+
+    // 진행 바 클릭 이벤트 추가
+    progressContainer.addEventListener('click', (e) => {
+        if (questions.length === 0) return;
+
+        const rect = progressContainer.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const width = rect.width;
+        
+        // 클릭 위치 비율 계산 (0 ~ 1)
+        const ratio = clickX / width;
+        
+        // 해당 비율에 맞는 문제 인덱스 계산
+        // 예: 10문제 중 50% 지점 클릭 -> 인덱스 4 또는 5
+        let newIndex = Math.floor(ratio * questions.length);
+        
+        // 범위 보정
+        if (newIndex < 0) newIndex = 0;
+        if (newIndex >= questions.length) newIndex = questions.length - 1;
+        
+        currentQuestionIndex = newIndex;
+        if (subjectFilter.value === 'all' && !isMockExamMode) saveProgress();
+        displayQuestion(currentQuestionIndex);
+    });
 
     prevBtn.addEventListener('click', () => {
         if (currentQuestionIndex > 0) {
